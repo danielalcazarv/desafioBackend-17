@@ -16,6 +16,7 @@ import session from "express-session";
 import connectMongo from 'connect-mongo';
 import bcrypt from 'bcrypt';
 import minimist from 'minimist';
+import cluster from 'cluster';
 import os from 'os';
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -38,7 +39,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const httpServer = createServer(app);
 const io = new Server (httpServer);
-//import routerRandoms from './src/routes/randoms.routes.js'; //hay que agregar los randoms
+import routerRandoms from './src/routes/randoms.routes.js'; //hay que agregar los randoms
 const CPU_CORES = os.cpus().length;
 
 /****Normalizr*****/
@@ -52,12 +53,13 @@ const normalizrMensajes = (msjsId) => normalize(msjsId, schMensajes);
 /******Middlewares******/
 app.use(express.urlencoded({extended:true}));
 app.use(express.static('./public'));
-app.use('/api/', express.static('./public'));
+app.use('/api', express.static('./public'));
+app.use('/api/randoms', express.static('./public'));
 app.use('/login', express.static('./public'));
-/*app.use((req, res, next) => {             //permite el uso de socket io en Routes
+app.use((req, res, next) => {  //permite el uso de socket io en Routes
     req.io = io;
     return next();
-});*/
+});
 
 //Passport
 passport.use( new LocalStrategy(
@@ -143,6 +145,9 @@ app.get('/api/productos-test', auth, (req,res)=>{
     res.render('main', {test:true , api:productos, firstname: usuario, correo:email});
 });
 
+//calculo Randoms
+app.use('/api/randoms', routerRandoms);
+
 //Info
 app.get('/info', (req,res)=>{
     const objInfo = {
@@ -227,9 +232,42 @@ io.on('connection', async (socket)=>{
 });
 
 /******Servidor******/
+let options = {default: {puerto:8080, modo: 'FORK'}, alias: {modo: 'm', p: 'puerto', d:'debug'}};
+let args = minimist(process.argv.slice(2), options);
+
+//CLUSTER
+if (cluster.isPrimary) {
+    console.log('Cant de cores: ', CPU_CORES);
+    
+    for (let i = 0; i < CPU_CORES; i++) {
+        cluster.fork();
+    }
+
+    cluster.on('exit', worker => {
+        console.log(`Worker ${process.pid} ${worker.id} ${worker.pid} finalizo ${new Date().toLocaleString()}`);
+        cluster.fork();
+    });
+
+} else {
+    const PORT = parseInt(process.argv[2]) || 8080;
+    const server = httpServer.listen(PORT, ()=>{
+        console.log( `Tu servidor esta corriendo en el puerto http://localhost: ${PORT} - PID WORKER ${process.pid}`);
+    });
+    server.on('error', error => console.log(`Error en servidor: ${error}`))
+}
+
+
+/*//FORK
+const PORT = parseInt(process.argv[2]) || 8080;
+const server = httpServer.listen(PORT, ()=>{
+    console.log( `Tu servidor esta corriendo en el puerto http://localhost: ${PORT} - PID WORKER ${process.pid}`);
+});
+server.on('error', error => logger.error(`Error en servidor: ${error}`))*/
+
+/* Anterior con este funca heroku
 const PORT = process.env.PORT || 8080;
 const server = httpServer.listen(PORT, ()=>{
     console.log(`Tu servidor esta corriendo en el puerto http://localhost: ${PORT} - PID WORKER ${process.pid}`)
 });
 
-server.on('error', error => console.log(`Error en servidor: ${error}`));
+server.on('error', error => console.log(`Error en servidor: ${error}`));*/
