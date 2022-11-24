@@ -1,6 +1,6 @@
 /******Modulos******/
 import express from 'express';
-import { fork } from 'child_process'; //desahabilitamos el fork child process para poder probar el profiling
+import { fork } from 'child_process'; 
 
 const routerRandoms = express.Router();
 const forkedProcess = fork('./calculo-random.js');
@@ -11,7 +11,7 @@ let valor;
 //Valida si se ingresa query
 async function validaQuery (req, res, next){
     if (req.query.cant == undefined){
-        valor = 1e8;
+        valor = 100;
         console.log(`Cantidad de números procesados ${valor}`);
     }else{
         valor=Number(req.query.cant);

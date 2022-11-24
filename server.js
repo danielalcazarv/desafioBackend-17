@@ -235,6 +235,7 @@ io.on('connection', async (socket)=>{
 let options = {default: {puerto:8080, modo: 'FORK'}, alias: {modo: 'm', p: 'puerto', d:'debug'}};
 let args = minimist(process.argv.slice(2), options);
 
+/*
 //CLUSTER
 if (cluster.isPrimary) {
     console.log('Cant de cores: ', CPU_CORES);
@@ -254,15 +255,15 @@ if (cluster.isPrimary) {
         console.log( `Tu servidor esta corriendo en el puerto http://localhost: ${PORT} - PID WORKER ${process.pid}`);
     });
     server.on('error', error => console.log(`Error en servidor: ${error}`))
-}
+}*/
 
 
-/*//FORK
+//FORK
 const PORT = parseInt(process.argv[2]) || 8080;
 const server = httpServer.listen(PORT, ()=>{
     console.log( `Tu servidor esta corriendo en el puerto http://localhost: ${PORT} - PID WORKER ${process.pid}`);
 });
-server.on('error', error => logger.error(`Error en servidor: ${error}`))*/
+server.on('error', error => logger.error(`Error en servidor: ${error}`))
 
 /* Anterior con este funca heroku
 const PORT = process.env.PORT || 8080;
