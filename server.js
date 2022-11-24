@@ -130,10 +130,6 @@ app.set('view engine', 'hbs');
 app.set('views','./src/views');
 
 /******Rutas******/
-app.get('/mensaje', (req,res)=>{
-    res.send('Hola probando Heroku!')
-});
-
 app.get('/', auth, (req,res)=>{
     const usuario = req.user.nombre;
     const email = req.user.username;
@@ -145,6 +141,21 @@ app.get('/api/productos-test', auth, (req,res)=>{
     const usuario = req.user.nombre;
     const email = req.user.username;
     res.render('main', {test:true , api:productos, firstname: usuario, correo:email});
+});
+
+//Info
+app.get('/info', (req,res)=>{
+    const objInfo = {
+        "ARG_INPUT": minimist(process.argv.slice(2)),
+        "OS": process.platform,
+        "NODE_VER": process.version,
+        "RSS": process.memoryUsage().rss,
+        "EXEC_PATH": process.execPath,
+        "PROCESS_ID": process.pid,
+        "PROJECT_FOLDER": process.cwd(),
+        "CPU_CORES": CPU_CORES
+    }
+    res.status(200).json(objInfo);
 });
 
 //Rutas de login y registro
@@ -215,6 +226,7 @@ io.on('connection', async (socket)=>{
     });
 });
 
+/******Servidor******/
 const PORT = process.env.PORT || 8080;
 const server = httpServer.listen(PORT, ()=>{
     console.log(`Tu servidor esta corriendo en el puerto http://localhost: ${PORT} - PID WORKER ${process.pid}`)
