@@ -5,7 +5,7 @@ dotenv.config();
 let mensajesDao;
 let usuariosDao;
 
-switch ('default') {
+switch (process.env.PERS) {
     case 'mongoDb':
         const { default: MensajesDaoMongoDb } = await import ('./mensajes/MensajesDaoMongoDb.js');
         const { default: UsuariosDaoMongoDb } = await import ('./usuarios/UsuariosDaoMongoDb.js');
