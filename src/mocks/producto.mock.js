@@ -1,4 +1,4 @@
-import ContenedorMemoria from "../containers/contenedorMemoria.js";
+import ContenedorMemoria from "../containers/ContenedorMemoria.js";
 import { generarProducto } from "../utils/generarDatos.js";
 
 export class ProductoMock extends ContenedorMemoria {
