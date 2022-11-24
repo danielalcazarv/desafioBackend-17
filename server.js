@@ -259,7 +259,7 @@ if (cluster.isPrimary) {
 
 
 //FORK
-const PORT = parseInt(process.argv[2]) || 8080;
+const PORT = process.env.PORT || 8080;
 const server = httpServer.listen(PORT, ()=>{
     console.log( `Tu servidor esta corriendo en el puerto http://localhost: ${PORT} - PID WORKER ${process.pid}`);
 });
